@@ -12,6 +12,12 @@
 const string RESET = "\033[0m";
 const string GREEN = "\033[32m";
 const string RED = "\033[31m";
+const string YELLOW = "\033[33m";
+const string BLUE = "\033[34m";
+const string MAGENTA = "\033[35m";
+const string CYAN = "\033[36m";
+const string WHITE = "\033[37m";
+const string BOLD = "\033[1m";
 
 class System
 {
@@ -103,6 +109,7 @@ public:
 	}
 
 	void newOrder(vector<Restaurant*>& rest) {
+
 		// 1. Select Category First.
 		int categoryChoice;
 		string category;
@@ -144,7 +151,7 @@ public:
 			category = "Thai";
 			break;
 		}
-		
+
 		// 2. Get matched restaurants by catrgory.
 		vector<Restaurant*> matchedRestaurants;
 		for (auto& restaurant : rest) {
@@ -153,11 +160,14 @@ public:
 			}
 		}
 
+		vector<int> matchedIndices;
+
 		// Print the matched restaurant name.
 		if (!matchedRestaurants.empty()) {
 			cout << "All available restaurants: [ " << category << " ]" << endl;
 			for (size_t i = 0; i < matchedRestaurants.size(); ++i) {
 				cout << i << "\t:";
+				matchedIndices.push_back(i);
 				cout << matchedRestaurants[i]->getName() << endl;
 			}
 		}
@@ -166,19 +176,25 @@ public:
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 		// Prompt user to select vehicles by index
-		cout << "Enter the indices of the vehicles you want to select : ";
 		int index;
-		cin >> index;
+		bool validIndex = false;
+		while (!validIndex) {
+			cout << "Enter the indices of the vehicles you want to select : ";
+			cin >> index;
 
+			// Check if the index is valid
+			if (find(matchedIndices.begin(), matchedIndices.end(), index) == matchedIndices.end()) {
+				cout << RED << "Invalid index. Please try again." << RESET << endl;
+			}
+			else {
+				validIndex = true;
+			}
+		}
 		Restaurant* selectedRestaurant = matchedRestaurants[index];
-		
 		selectedRestaurant->displayMenu();
 
-		// ********
-		// a simple
-		// ********
-		//orders.push_back(new Order("~~~~~~~new~order~~~~~~", selectedRestaurant->getName()));
-		Order* newOrder = new Order("~~~~~~~new~order~~~~~~", selectedRestaurant->getName());
+		Delivery delivery(selectedRestaurant->getDistance());
+		Order* newOrder = new Order("~~~~~~~new~order~~~~~~", selectedRestaurant->getName(), delivery);
 		int count = 1;
 		while (true) {
 			int foodIndex = 0;
@@ -194,15 +210,55 @@ public:
 				break;
 			}
 		}
-		cout << "Please select the delivery options: [ Direct ] [ Standard ] [ Saver ]" << endl;
-		string options; 
-		cin >> options;
-		Delivery delivery(selectedRestaurant->getDistance(), options);
-		cout << "\n";
-		newOrder->orderSummary();
-		cout << "The delivery fee is $" << delivery.getDeliveryFee() << endl;
-		cout << "\n====> Total amount: $" << delivery.getDeliveryFee() + newOrder->getTotalPrice_food() << endl;
 
+		cout << YELLOW << "Please select the delivery options: [1] Direct  [2] Standard  [3] Saver" << endl;
+		cout << "(Enter numbers)" << endl;
+		cout << "=====> ";
+		int deliveryOption;
+		cin >> deliveryOption;
+		cout << RESET;
+		string options;
+		if (deliveryOption == 1) {
+			options = "Direct";
+		}
+		else if (deliveryOption == 2) {
+			options = "Standard";
+		}
+		else if (deliveryOption == 3) {
+			options = "Saver";
+		}
+		else {
+			cout << RED << "Invalid delivery option. Please try again." << RESET << endl;
+			return;
+		}
+		delivery.setDeliveryOption(options);
+		cout << "\n";
+		newOrder->setDelivery(delivery);
+
+		orders.push_back(newOrder);
+		newOrder->orderSummary();
+
+		cout << YELLOW << "Please select the payment: [1] Credit card  [2] E-wallet  [3] Cash on delivery " << endl;
+		cout << "(Enter numbers)" << endl;
+		cout << "=====> ";
+		int payment;
+		cin >> payment;
+		cout << RESET;
+		string paymentMethod;
+		if (payment == 1) {
+			paymentMethod = "Credit card";
+		}
+		else if (payment == 2) {
+			paymentMethod = "E-wallet";
+		}
+		else if (payment == 3) {
+			paymentMethod = "Cash on delivery";
+		}
+		else {
+			cout << RED << "Invalid payment method. Please try again." << RESET << endl;
+			return;
+		}
+		newOrder->setPaymentMethod(paymentMethod);
 	}
 };
 

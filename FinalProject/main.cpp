@@ -71,8 +71,8 @@ int main() {
     tr->addFood(new SomTum());
     restaurants.push_back(tr);
 
-	system.login();
-	system.clearScreen();
+	//system.login();
+	//system.clearScreen();
 
 	int choice;
 	do {
@@ -135,10 +135,10 @@ int main() {
             break;
         }
         case 3:
-            std::cout << "Exiting...\n";
+            cout << "Exiting...\n";
             break;
         default:
-            std::cout << "Invalid choice. Try again.\n";
+            cout << RED << "Invalid choice. Try again.\n" << RESET;
         }
     }while (choice != 3);
 

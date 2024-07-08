@@ -49,9 +49,11 @@ private:
         }
     }
 public:
-    Delivery(int distance, string deliveryOption)
-        : distance(distance), deliveryOption(deliveryOption) {
-        deliveryFee = calculateDeliveryFee();
+    Delivery(int distance) : distance(distance), deliveryTime(0), deliveryFee(0.0) {}
+
+    void setDeliveryOption(string option) {
+        deliveryOption = option;
+        deliveryFee = calculateDeliveryFee(); // Calculate delivery fee when option is set
     }
 
     string getDeliveryOption() const {

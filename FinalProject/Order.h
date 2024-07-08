@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "Restaurant.h"
 #include "Food.h"
+#include "Delivery.h"
 
 using namespace std;
 
@@ -29,8 +30,11 @@ private:
 	string restaurantName;
     unordered_map<Food*, int, FoodPtrHash, FoodPtrEqual> food_and_quantity; // Hash table to store the food items and corresponding quantities
     double totalPrice_food;
+	Delivery delivery;
+	string paymentMethod;
 public:
-	Order(string ID,string Name): newOrderID(ID), restaurantName(Name), totalPrice_food(0){}
+    Order(string ID, string Name, Delivery delivery, string paymentMethod = "") :
+        newOrderID(ID), restaurantName(Name), delivery(delivery), paymentMethod(paymentMethod), totalPrice_food(0) {}
 
 	string getOrderID() {
 		return newOrderID;
@@ -48,8 +52,24 @@ public:
         return totalPrice_food;
     }
 
+    void setDelivery(Delivery delivery) {
+		this->delivery = delivery;
+    }
+
+    Delivery getDelivery() {
+		return delivery;
+    }
+
+    void setPaymentMethod(string method) {
+		paymentMethod = method;
+    }
+
+    string getPaymentMethod() {
+        return paymentMethod;
+    }
+
     void orderSummary() {
-        cout << "\nOrder Summary:" << endl;
+        cout << "Order Summary:" << endl;
         cout << "===== >" << getRestaurantName() << "< =====" << endl;
         cout << "Order List:" << endl;
         cout << "Food Name:\tUnit price:\tQuantity:\tTotal price:" << endl;
@@ -60,6 +80,8 @@ public:
             totalPrice_food += food->getPrice() * quantity;
         }
         cout << "===== > Subtotal: $" << totalPrice_food << endl;
+        cout << "The delivery fee is $" << delivery.getDeliveryFee() << endl;
+        cout << "\n====> Total amount: $" << delivery.getDeliveryFee() + totalPrice_food << endl << endl;
     }
 };
 
