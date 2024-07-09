@@ -32,6 +32,7 @@ private:
     double totalPrice_food;
 	Delivery delivery;
 	string paymentMethod;
+    string specialInstructions = "NULL";
 public:
     Order(string ID, string Name, Delivery delivery, string paymentMethod = "") :
         newOrderID(ID), restaurantName(Name), delivery(delivery), paymentMethod(paymentMethod), totalPrice_food(0) {}
@@ -68,8 +69,12 @@ public:
         return paymentMethod;
     }
 
+    void setSpecialInstructions(string instructions) {
+		specialInstructions = instructions;
+    }
+
     void orderSummary() {
-        cout << "Order Summary:" << endl;
+        cout << "\nOrder Summary:" << endl;
         cout << "===== >" << getRestaurantName() << "< =====" << endl;
         cout << "Order List:" << endl;
         cout << "Food Name:\t\tUnit price:\tQuantity:\tTotal price:" << endl;
@@ -82,6 +87,9 @@ public:
         cout << "===== > Subtotal: $" << totalPrice_food << endl;
         cout << "The delivery fee is $" << delivery.getDeliveryFee() << endl;
         cout << "\n====> Total amount: $" << delivery.getDeliveryFee() + totalPrice_food << endl << endl;
+		cout << "\n=============================================================\n";
+		cout << "Special Instructions:\n" << specialInstructions << endl;
+        cout << "\n=============================================================\n";
     }
 };
 

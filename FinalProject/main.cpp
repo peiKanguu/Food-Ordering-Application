@@ -82,7 +82,7 @@ int main() {
     tr->addFood(new SomTum());
     restaurants.push_back(tr);
 
-	system.login();
+	//system.login();
 	system.clearScreen();
 
 	int choice;

@@ -292,18 +292,18 @@ public:
 		string category;
 		while (true) {
 			cout << "Food categories: [1. Western] [2. Arabic] [3. Chinese] [4. Japanese] [5. Korean] [6. Thai]" << endl;
-			cout << "Select food category: ";
+			cout << "Select food category by index: ";
 
 			if (cin >> categoryChoice) { // Check if input is a number
 				if (categoryChoice >= 1 && categoryChoice <= 6) {
 					break; // Valid category, exit the loop
 				}
 				else {
-					cout << "Invalid number, please re-enter." << endl;
+					cout << RED << "Invalid number, please re-enter." << RESET << endl;
 				}
 			}
 			else {
-				cout << "Invalid input, please enter a number." << endl;
+				cout << RED << "Invalid input, please enter a number." << RESET << endl;
 				cin.clear(); // Clear the error flag on cin
 				cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
 			}
@@ -343,7 +343,7 @@ public:
 		if (!matchedRestaurants.empty()) {
 			cout << "\n\nAll available restaurants: [ " << category << " ]" << endl;
 			for (size_t i = 0; i < matchedRestaurants.size(); ++i) {
-				cout << RED << "* " << RESET << i << "  :";
+				cout << RED << "* " << RESET << i << " : ";
 				matchedIndices.push_back(i);
 				cout << matchedRestaurants[i]->getName() << endl;
 			}
@@ -392,6 +392,32 @@ public:
 			count++;
 			if (judge != 'Y' && judge != 'y') {
 				break;
+			}
+		}
+
+		string specialInstructions;
+		char temp;
+
+		while (true) {
+			cout << "\nAny special instructions for the order? (Y/N): ";
+			cin >> temp;
+
+			// Convert temp to uppercase to handle both 'Y' and 'y' or 'N' and 'n'
+			temp = toupper(temp);
+
+			if (temp == 'Y') {
+				cout << "Enter special instructions: ";
+				cin.ignore();
+				getline(cin, specialInstructions);
+				newOrder->setSpecialInstructions(specialInstructions);
+				break;
+			}
+			else if (temp == 'N') {
+				newOrder->setSpecialInstructions("NULL");
+				break;
+			}
+			else {
+				cout << RED << "Invalid input. Please enter 'Y' for yes or 'N' for no." << RESET << endl;
 			}
 		}
 
