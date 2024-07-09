@@ -3,10 +3,13 @@
 #define SYSTEM_H
 
 #include <vector>
+#include <ctime>    // For time()
+#include <cstdlib>  // For rand() and srand()
 #include "User.h"
 #include "Restaurant.h"
 #include "Order.h"
 #include "Delivery.h"
+#include "Rider.h"
 
 // ANSI escape codes for colors
 const string RESET = "\033[0m";
@@ -108,6 +111,91 @@ public:
 #endif
 	}
 
+	void DetermineDeliveryOption(Delivery& delivery, Order* newOrder) {
+		cout << YELLOW << "Please select the delivery option: [1] Direct [2] Standard [3] Saver" << endl;
+		cout << "(Enter numbers)" << endl;
+		cout << "=====> ";
+		int deliveryOption;
+		cin >> deliveryOption;
+		cout << RESET;
+		string option;
+		if (deliveryOption == 1) {
+			option = "Direct";
+		}
+		else if (deliveryOption == 2) {
+			option = "Standard";
+		}
+		else if (deliveryOption == 3) {
+			option = "Saver";
+		}
+		else {
+			cout << RED << "Invalid delivery option. Please try again." << RESET << endl;
+			return;
+		}
+		delivery.setDeliveryOption(option);
+		newOrder->setDelivery(delivery);
+	}
+
+	void DeterminePaymentMethod(Order* newOrder) {
+		cout << YELLOW << "Please select the payment method: [1] Cash [2] Credit Card [3] Debit Card" << endl;
+		cout << "(Enter numbers)" << endl;
+		cout << "=====> ";
+		int paymentMethod;
+		cin >> paymentMethod;
+		cout << RESET;
+		string method;
+		if (paymentMethod == 1) {
+			method = "Cash";
+		}
+		else if (paymentMethod == 2) {
+			method = "Credit Card";
+		}
+		else if (paymentMethod == 3) {
+			method = "Debit Card";
+		}
+		else {
+			cout << RED << "Invalid payment method. Please try again." << RESET << endl;
+			return;
+		}
+		newOrder->setPaymentMethod(method);
+	}
+
+	void confirmation(Order* newOrder) {
+		char confirmationChoice;
+
+		// Input validation loop
+		while (true) {
+			cout << "Do you want to confirm the order? (y/n): ";
+			cin >> confirmationChoice;
+
+			// Check for valid input
+			if (confirmationChoice == 'y' || confirmationChoice == 'Y' || confirmationChoice == 'n' || confirmationChoice == 'N') {
+				clearScreen();
+				break;
+			}
+			else {
+				cout << "Invalid input. Please enter 'y' for yes or 'n' for no." << endl;
+			}
+		}
+
+		if (confirmationChoice == 'y' || confirmationChoice == 'Y') {
+			cout << "Your order has been placed successfully! Please check." << endl;
+			cout << "Order ID: " << newOrder->getOrderID() << endl;
+			newOrder->orderSummary();
+			cout << "Delivery option: " << newOrder->getDelivery().getDeliveryOption() << endl;
+			cout << "Payment method: " << newOrder->getPaymentMethod() << endl;
+			newOrder->getDelivery().getRider()->display();
+			cout << "\nThank you for ordering!" << endl;
+			cout << "--------------------------------------------" << endl;
+		}
+		else {
+			// Clear the newOrder object if the user does not confirm the order
+			delete newOrder;
+			newOrder = nullptr;
+			cout << "Your order has been canceled." << endl;
+		}
+	}
+
 	void newOrder(vector<Restaurant*>& rest) {
 
 		// 1. Select Category First.
@@ -191,6 +279,7 @@ public:
 			}
 		}
 		Restaurant* selectedRestaurant = matchedRestaurants[index];
+
 		selectedRestaurant->displayMenu();
 
 		Delivery delivery(selectedRestaurant->getDistance());
@@ -211,54 +300,30 @@ public:
 			}
 		}
 
-		cout << YELLOW << "Please select the delivery options: [1] Direct  [2] Standard  [3] Saver" << endl;
-		cout << "(Enter numbers)" << endl;
-		cout << "=====> ";
-		int deliveryOption;
-		cin >> deliveryOption;
-		cout << RESET;
-		string options;
-		if (deliveryOption == 1) {
-			options = "Direct";
-		}
-		else if (deliveryOption == 2) {
-			options = "Standard";
-		}
-		else if (deliveryOption == 3) {
-			options = "Saver";
-		}
-		else {
-			cout << RED << "Invalid delivery option. Please try again." << RESET << endl;
-			return;
-		}
-		delivery.setDeliveryOption(options);
-		cout << "\n";
-		newOrder->setDelivery(delivery);
+		// Seed the random number generator
+		srand(static_cast<unsigned int>(time(0)));
 
-		orders.push_back(newOrder);
+		// Creating multiple riders
+		vector<Rider> riders = {
+			Rider("John Doe", "+1234567890", "Honda Activa"),
+			Rider("Jane Smith", "+0987654321", "Yamaha R15"),
+			Rider("Alice Johnson", "+1122334455", "Suzuki Access")
+		};
+
+		// Randomly select a rider
+		int randomIndex = rand() % riders.size();
+		Rider* selectedRider = &riders[randomIndex];
+
+		// Assign the randomly selected rider to the delivery
+		delivery.assignRider(selectedRider);
+
+		DetermineDeliveryOption(delivery, newOrder);
+
 		newOrder->orderSummary();
 
-		cout << YELLOW << "Please select the payment: [1] Credit card  [2] E-wallet  [3] Cash on delivery " << endl;
-		cout << "(Enter numbers)" << endl;
-		cout << "=====> ";
-		int payment;
-		cin >> payment;
-		cout << RESET;
-		string paymentMethod;
-		if (payment == 1) {
-			paymentMethod = "Credit card";
-		}
-		else if (payment == 2) {
-			paymentMethod = "E-wallet";
-		}
-		else if (payment == 3) {
-			paymentMethod = "Cash on delivery";
-		}
-		else {
-			cout << RED << "Invalid payment method. Please try again." << RESET << endl;
-			return;
-		}
-		newOrder->setPaymentMethod(paymentMethod);
+		DeterminePaymentMethod(newOrder);
+
+		confirmation(newOrder);
 	}
 };
 

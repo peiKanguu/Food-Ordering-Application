@@ -71,8 +71,8 @@ int main() {
     tr->addFood(new SomTum());
     restaurants.push_back(tr);
 
-	//system.login();
-	//system.clearScreen();
+	system.login();
+	system.clearScreen();
 
 	int choice;
 	do {
@@ -84,50 +84,6 @@ int main() {
             system.clearScreen();
             cout << "You are taking a new order." << endl;
             system.newOrder(restaurants);
-
-            //Order newOrder(Order::nextOrderId++, username);
-            //for (const auto& item : selectedRestaurant.getMenu()) {
-            //    int quantity;
-            //    std::string instructions;
-            //    std::cout << "Enter quantity for " << item.getName() << ": ";
-            //    std::cin >> quantity;
-            //    std::cout << "Enter special instructions (if any): ";
-            //    std::cin.ignore();
-            //    std::getline(std::cin, instructions);
-            //    newOrder.addItem(item, quantity, instructions);
-            //}
-
-            //Delivery delivery;
-            //std::string deliveryOption;
-            //std::cout << "Select delivery option: ";
-            //for (const auto& option : delivery.getOptions()) {
-            //    std::cout << option.first << " (" << option.second << " mins)\n";
-            //}
-            //std::cin >> deliveryOption;
-            //newOrder.setDeliveryOption(deliveryOption);
-
-            //Payment payment;
-            //std::string paymentMethod;
-            //std::cout << "Select payment method: ";
-            //for (const auto& method : payment.getMethods()) {
-            //    std::cout << method << "\n";
-            //}
-            //std::cin >> paymentMethod;
-            //newOrder.setPaymentMethod(paymentMethod);
-
-            //newOrder.displaySummary();
-            //std::string confirm;
-            //std::cout << "Confirm order? (yes/no): ";
-            //std::cin >> confirm;
-            //if (confirm == "yes") {
-            //    newOrder.confirmOrder();
-            //    saveOrder(newOrder);
-            //    orders.push_back(newOrder);
-            //    std::cout << "Order confirmed.\n";
-            //}
-            //else {
-            //    std::cout << "Order cancelled.\n";
-            //}
             break;
         }
         case 2: {

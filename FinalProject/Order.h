@@ -72,11 +72,11 @@ public:
         cout << "Order Summary:" << endl;
         cout << "===== >" << getRestaurantName() << "< =====" << endl;
         cout << "Order List:" << endl;
-        cout << "Food Name:\tUnit price:\tQuantity:\tTotal price:" << endl;
+        cout << "Food Name:\t\tUnit price:\tQuantity:\tTotal price:" << endl;
         for (auto& pair : food_and_quantity) {
             Food* food = pair.first;
             int quantity = pair.second;
-            cout << food->getName() << "\t$" << food->getPrice() << "\tX" << quantity << "\t$" << food->getPrice() * quantity << endl;
+            cout << food->getName() << "\t\t$" << food->getPrice() << "\t\tX" << quantity << "\t$" << food->getPrice() * quantity << endl;
             totalPrice_food += food->getPrice() * quantity;
         }
         cout << "===== > Subtotal: $" << totalPrice_food << endl;
