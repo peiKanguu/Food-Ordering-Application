@@ -3,7 +3,18 @@
 
 int main() {
 	System system;
-	system.addUsers(new User("Pei", "Kang", "Pei Kang", "pk123456", "123456"));
+	// Add users
+	system.addUsers(new User("Pei", "Kang", "Pei Kang", "pk123456", "123456"));  // Admin
+	system.addUsers(new User("John", "Doe", "John Doe", "jd123456", "123456"));
+	system.addUsers(new User("Jane", "Doe", "Jane Doe", "jd654321", "654321"));
+	system.addUsers(new User("Alice", "Smith", "Alice Smith", "as123456", "123456"));
+	system.addUsers(new User("Bob", "Brown", "Bob Brown", "bb123456", "123456"));
+	system.addUsers(new User("Charlie", "White", "Charlie White", "cw123456", "123456"));
+	system.addUsers(new User("David", "Black", "David Black", "db123456", "123456"));
+    
+    // Display a default user for teacher to test
+	cout << "Default account for teachers: " << endl;
+	system.getDefaultUser()->displayAccount();
 
     vector<Restaurant*> restaurants;
     // Add restaurant and corresponding food items
@@ -77,17 +88,26 @@ int main() {
 	int choice;
 	do {
 		printMenu();
-		cout << "Enter your choice: ";
+		cout << CYAN << "===> Enter your choice: ";
 		cin >> choice;
+		cout << RESET;
 		switch (choice) {
         case 1: {
             system.clearScreen();
-            cout << "You are taking a new order." << endl;
+            cout << "You are taking a new order." << endl << endl;
             system.newOrder(restaurants);
             break;
         }
         case 2: {
-            // Reorder implementation here
+			system.clearScreen();
+			// check if previous orders exist
+			if (system.getOrders().empty()) {
+				cout << RED << "No previous orders found." << RESET << endl;
+				break;
+			}
+			cout << "You are viewing your order history." << endl;
+			system.viewOrderHistory();
+			system.reorder();
             break;
         }
         case 3:

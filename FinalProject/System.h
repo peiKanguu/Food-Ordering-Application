@@ -22,6 +22,19 @@ const string CYAN = "\033[36m";
 const string WHITE = "\033[37m";
 const string BOLD = "\033[1m";
 
+class LoginException : public exception {
+public:
+	explicit LoginException(const string& message) : msg_(message) {}
+	virtual const char* what() const noexcept {
+		return msg_.c_str();
+	}
+private:
+	string msg_;
+};
+
+
+
+
 class System
 {
 private:
@@ -32,49 +45,124 @@ public:
 		users.push_back(user);
 	}
 
+	User* getDefaultUser() {
+		return users[0];
+	}
+
+	vector<Order*> getOrders() {
+		return orders;
+	}
+
 	// Login Window
+	//void login() {
+	//	string ID, Password;
+	//	bool loginSuccess = false;
+
+	//	while (!loginSuccess) {
+	//		cout << "==============================" << endl;
+	//		cout << "=========  >Login<   =========" << endl;
+	//		cout << "======  Enter ID: ";
+	//		cin >> ID;
+	//		cout << "======  Password: ";
+	//		cin >> Password;
+
+	//		bool userFound = false;
+
+	//		for (auto& user : users) {
+	//			if (user->getID() == ID) {
+	//				userFound = true;
+	//				if (user->getPassWord() == Password) {
+	//					cout << GREEN << "Successful login!" << RESET << endl;
+	//					loginSuccess = true;
+	//				}
+	//				else {
+	//					cout << RED << "Wrong password, please re-enter." << RESET << endl;
+	//					while (!loginSuccess) {
+	//						cout << "==============================" << endl;
+	//						cout << "=========  >Login<   =========" << endl;
+	//						cout << "======  Enter ID: ";
+	//						cin >> ID;
+	//						cout << "======  Password: ";
+	//						cin >> Password;
+	//						if (user->getPassWord() == Password) {
+	//							cout << GREEN << "Successful login!" << RESET << endl;
+	//							loginSuccess = true;
+	//						}
+	//						else {
+	//							cout << RED << "Wrong password, please re-enter." << RESET << endl << endl;
+	//						}
+	//					}
+	//				}
+	//				break;
+	//			}
+	//		}
+
+	//		if (!userFound) {
+	//			cout << RED << "Incorrect ID, please check its accuracy and try again." << RESET << endl << endl;
+	//		}
+	//	}
+	//}
+
 	void login() {
 		string ID, Password;
 		bool loginSuccess = false;
 
 		while (!loginSuccess) {
-			cout << "== Login==" << endl;
-			cout << "Enter ID: ";
-			cin >> ID;
-			cout << "Enter password: ";
-			cin >> Password;
+			try {
+				cout << "==============================" << endl;
+				cout << "=========  >Login<   =========" << endl;
+				cout << "======  Enter ID: ";
+				if (!(cin >> ID)) {
+					throw LoginException("Invalid input for ID");
+				}
+				cout << "======  Password: ";
+				if (!(cin >> Password)) {
+					throw LoginException("Invalid input for Password");
+				}
 
-			bool userFound = false;
+				bool userFound = false;
 
-			for (auto& user : users) {
-				if (user->getID() == ID) {
-					userFound = true;
-					if (user->getPassWord() == Password) {
-						cout << GREEN << "Successful login!" << RESET << endl;
-						loginSuccess = true;
-					}
-					else {
-						cout << RED << "Wrong password, please re-enter." << RESET << endl;
-						while (!loginSuccess) {
-							cout << "== Login==" << endl;
-							cout << "Enter ID: " << ID << endl;
-							cout << "Enter password: ";
-							cin >> Password;
-							if (user->getPassWord() == Password) {
-								cout << GREEN << "Successful login!" << RESET << endl;
-								loginSuccess = true;
-							}
-							else {
-								cout << RED << "Wrong password, please re-enter." << RESET << endl;
+				for (auto& user : users) {
+					if (user->getID() == ID) {
+						userFound = true;
+						if (user->getPassWord() == Password) {
+							cout << GREEN << "Successful login!" << RESET << endl;
+							loginSuccess = true;
+						}
+						else {
+							cout << RED << "Wrong password, please re-enter." << RESET << endl;
+							while (!loginSuccess) {
+								cout << "==============================" << endl;
+								cout << "=========  >Login<   =========" << endl;
+								cout << "======  Enter ID: ";
+								if (!(cin >> ID)) {
+									throw LoginException("Invalid input for ID");
+								}
+								cout << "======  Password: ";
+								if (!(cin >> Password)) {
+									throw LoginException("Invalid input for Password");
+								}
+								if (user->getPassWord() == Password) {
+									cout << GREEN << "Successful login!" << RESET << endl;
+									loginSuccess = true;
+								}
+								else {
+									cout << RED << "Wrong password, please re-enter." << RESET << endl << endl;
+								}
 							}
 						}
+						break;
 					}
-					break;
+				}
+
+				if (!userFound) {
+					cout << RED << "Incorrect ID, please check its accuracy and try again." << RESET << endl << endl;
 				}
 			}
-
-			if (!userFound) {
-				cout << RED << "Incorrect ID, please check its accuracy and try again." << RESET << endl;
+			catch (const LoginException& e) {
+				cerr << RED << e.what() << RESET << endl;
+				cin.clear(); // Çå³ý´íÎó×´Ì¬
+				cin.ignore(numeric_limits<streamsize>::max(), '\n'); // ¶ªÆú´íÎóÊäÈë
 			}
 		}
 	}
@@ -187,6 +275,7 @@ public:
 			newOrder->getDelivery().getRider()->display();
 			cout << "\nThank you for ordering!" << endl;
 			cout << "--------------------------------------------" << endl;
+			orders.push_back(newOrder);
 		}
 		else {
 			// Clear the newOrder object if the user does not confirm the order
@@ -252,9 +341,9 @@ public:
 
 		// Print the matched restaurant name.
 		if (!matchedRestaurants.empty()) {
-			cout << "All available restaurants: [ " << category << " ]" << endl;
+			cout << "\n\nAll available restaurants: [ " << category << " ]" << endl;
 			for (size_t i = 0; i < matchedRestaurants.size(); ++i) {
-				cout << i << "\t:";
+				cout << RED << "* " << RESET << i << "  :";
 				matchedIndices.push_back(i);
 				cout << matchedRestaurants[i]->getName() << endl;
 			}
@@ -267,7 +356,7 @@ public:
 		int index;
 		bool validIndex = false;
 		while (!validIndex) {
-			cout << "Enter the indices of the vehicles you want to select : ";
+			cout << "\nEnter the indices of the vehicles you want to select : ";
 			cin >> index;
 
 			// Check if the index is valid
@@ -282,8 +371,14 @@ public:
 
 		selectedRestaurant->displayMenu();
 
+		// Seed the random number generator
+		srand(static_cast<unsigned int>(time(0)));
+
+		// Create a new orderID
+		string newOrderID = "ORD" + to_string(rand() % 100000 + 100000);
+
 		Delivery delivery(selectedRestaurant->getDistance());
-		Order* newOrder = new Order("~~~~~~~new~order~~~~~~", selectedRestaurant->getName(), delivery);
+		Order* newOrder = new Order(newOrderID, selectedRestaurant->getName(), delivery);
 		int count = 1;
 		while (true) {
 			int foodIndex = 0;
@@ -299,9 +394,6 @@ public:
 				break;
 			}
 		}
-
-		// Seed the random number generator
-		srand(static_cast<unsigned int>(time(0)));
 
 		// Creating multiple riders
 		vector<Rider> riders = {
@@ -324,6 +416,35 @@ public:
 		DeterminePaymentMethod(newOrder);
 
 		confirmation(newOrder);
+	}
+
+	void viewOrderHistory() {
+		cout << "Order History" << endl;
+		int index = 1;
+		for (auto& order : orders) {
+			cout << "=====>Order " << index++ << endl;
+			cout << "============================================\n";
+			order->orderSummary();
+			cout << "============================================\n";
+		}
+	}
+
+	void reorder() {
+		cout << "Reorder" << endl;
+		cout << "Enter the order index you want to reorder: ";
+		int index;
+		cin >> index;
+		if (index < 1 || index > orders.size()) {
+			cout << RED << "Invalid order index. Please try again." << RESET << endl;
+			return;
+		}
+		Order* reOrder = orders[index - 1];
+		cout << "Reordering the following order:" << endl;
+		reOrder->orderSummary();
+		cout << "============================================\n";
+		cout << "Order has been successfully reordered!" << endl;
+		cout << "============================================\n";
+		orders.push_back(reOrder);
 	}
 };
 
