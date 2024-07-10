@@ -1,6 +1,8 @@
 #ifndef RESTAURANT_H
 #define RESTAURANT_H
 #include "Food.h"
+#include "Colors.h"
+#include <iomanip>
 #include <vector>
 
 using namespace std;
@@ -47,10 +49,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << i << "\t: ";
-            cout << items[i]->getName() << ", Price: $" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }
@@ -81,10 +83,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << i << "\t: ";
-            cout << items[i]->getName() << ", Price: $" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }
@@ -115,10 +117,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << "* " << i << " : ";
-            cout << items[i]->getName() << "\t\t$" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }
@@ -149,10 +151,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << "* " << i << " : ";
-            cout << items[i]->getName() << "\t\t$" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }
@@ -183,10 +185,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << i << "\t: ";
-            cout << items[i]->getName() << ", Price: $" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }
@@ -217,10 +219,10 @@ public:
     }
 
     void displayMenu() override {
-        cout << "\nMenu for " << name << ":" << endl;
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
         for (size_t i = 0; i < items.size(); ++i) {
-            cout << "* " << i << " : ";
-            cout << items[i]->getName() << "\t\t\t$" << items[i]->getPrice() << endl;
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
         }
         cout << endl;
     }

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <iomanip>
 #include "Restaurant.h"
 #include "Food.h"
 #include "Delivery.h"
@@ -74,22 +75,26 @@ public:
     }
 
     void orderSummary() {
+        cout << "\nRestaurant: " << getRestaurantName() << endl;
         cout << "\nOrder Summary:" << endl;
-        cout << "===== >" << getRestaurantName() << "< =====" << endl;
-        cout << "Order List:" << endl;
-        cout << "Food Name:\t\tUnit price:\tQuantity:\tTotal price:" << endl;
+        totalPrice_food = 0;
         for (auto& pair : food_and_quantity) {
             Food* food = pair.first;
             int quantity = pair.second;
-            cout << food->getName() << "\t\t$" << food->getPrice() << "\t\tX" << quantity << "\t$" << food->getPrice() * quantity << endl;
+            cout << "- " << quantity << " x " << setw(20) << left << food->getName()
+                << "\t$" << setw(7) << right << fixed << setprecision(2) << food->getPrice() * quantity << endl;
+			if (food->needsPreference()) {
+				cout << " (" << food->getPreference() << ")" << endl;
+			}
             totalPrice_food += food->getPrice() * quantity;
         }
-        cout << "===== > Subtotal: $" << totalPrice_food << endl;
-        cout << "The delivery fee is $" << delivery.getDeliveryFee() << endl;
-        cout << "\n====> Total amount: $" << delivery.getDeliveryFee() + totalPrice_food << endl << endl;
-		cout << "\n=============================================================\n";
-		cout << "Special Instructions:\n" << specialInstructions << endl;
-        cout << "\n=============================================================\n";
+
+        cout << "\n===== > Subtotal: " << setw(15) << right << "$" << setw(7) << fixed << setprecision(2) << totalPrice_food << endl;
+        cout << "===== > Delivery fee: " << setw(11) << right << "$" << setw(7) << fixed << setprecision(2) << delivery.getDeliveryFee() << endl;
+        cout << "\nTotal: " << setw(26) << right << "$" << setw(7) << fixed << setprecision(2) << delivery.getDeliveryFee() + totalPrice_food << endl;
+        cout << "\n----------------------------------------\n";
+        cout << "Special Instructions:\n" << specialInstructions << endl;
+        cout << "\n----------------------------------------\n";
     }
 };
 

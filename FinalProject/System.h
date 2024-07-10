@@ -3,35 +3,26 @@
 #define SYSTEM_H
 
 #include <vector>
-#include <ctime>    // For time()
-#include <cstdlib>  // For rand() and srand()
+#include <ctime>
+#include <cstdlib>
+#include <fstream>   // For file operations
+#include <limits>
 #include "User.h"
 #include "Restaurant.h"
 #include "Order.h"
 #include "Delivery.h"
 #include "Rider.h"
-
-// ANSI escape codes for colors
-const string RESET = "\033[0m";
-const string GREEN = "\033[32m";
-const string RED = "\033[31m";
-const string YELLOW = "\033[33m";
-const string BLUE = "\033[34m";
-const string MAGENTA = "\033[35m";
-const string CYAN = "\033[36m";
-const string WHITE = "\033[37m";
-const string BOLD = "\033[1m";
+#include "Colors.h"
 
 class LoginException : public exception {
 public:
-	explicit LoginException(const string& message) : msg_(message) {}
-	virtual const char* what() const noexcept {
-		return msg_.c_str();
-	}
+    explicit LoginException(const string& message) : msg_(message) {}
+    virtual const char* what() const noexcept {
+        return msg_.c_str();
+    }
 private:
-	string msg_;
+    string msg_;
 };
-
 
 
 
@@ -168,34 +159,13 @@ public:
 	}
 
 	// Clear the screen
-	void clearScreen()
-	{
+	void clearScreen() {
 #ifdef _WIN32
-		char* buffer = nullptr;
-		size_t requiredSize;
-
-		// Get the value of the WSL_DISTRO_NAME environment variable
-		getenv_s(&requiredSize, nullptr, 0, "WSL_DISTRO_NAME");
-		if (requiredSize != 0) {
-			// Allocate buffer and get the actual value
-			buffer = new char[requiredSize];
-			getenv_s(&requiredSize, buffer, requiredSize, "WSL_DISTRO_NAME");
-
-			if (buffer && buffer[0] != '\0') {
-				system("clear"); // Running in WSL
-			}
-			else {
-				system("cls"); // Running in Windows
-			}
-
-			// Clean up
-			delete[] buffer;
-		}
-		else {
-			system("cls"); // Running in Windows
-		}
+		system("cls"); // Windows
+#elif defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+		system("clear"); // Linux, macOS, Unix
 #else
-		system("clear"); // Running in Linux/MacOS/Unix
+		cerr << "Unsupported platform for clearScreen()" << std::endl;
 #endif
 	}
 
@@ -267,14 +237,17 @@ public:
 		}
 
 		if (confirmationChoice == 'y' || confirmationChoice == 'Y') {
-			cout << "Your order has been placed successfully! Please check." << endl;
-			cout << "Order ID: " << newOrder->getOrderID() << endl;
+			cout << "Your order has been placed successfully!" << endl;
+			cout << "------------------------------------------" << endl;
+			cout << "            Order Confirmation            " << endl;
+			cout << "------------------------------------------" << endl;
+			cout << "\nOrder ID: " << newOrder->getOrderID();
 			newOrder->orderSummary();
-			cout << "Delivery option: " << newOrder->getDelivery().getDeliveryOption() << endl;
+			cout << "\nDelivery option: " << newOrder->getDelivery().getDeliveryOption() << endl;
 			cout << "Payment method: " << newOrder->getPaymentMethod() << endl;
 			newOrder->getDelivery().getRider()->display();
 			cout << "\nThank you for ordering!" << endl;
-			cout << "--------------------------------------------" << endl;
+			cout << "-----------------------------------------" << endl;
 			orders.push_back(newOrder);
 		}
 		else {
@@ -291,10 +264,11 @@ public:
 		int categoryChoice;
 		string category;
 		while (true) {
-			cout << "Food categories: [1. Western] [2. Arabic] [3. Chinese] [4. Japanese] [5. Korean] [6. Thai]" << endl;
-			cout << "Select food category by index: ";
-
+			cout << YELLOW << "Please Food categories: [1. Western] [2. Arabic] [3. Chinese] [4. Japanese] [5. Korean] [6. Thai]" << endl;
+			cout << "(Enter numbers)" << endl;
+			cout << "=====> ";
 			if (cin >> categoryChoice) { // Check if input is a number
+				cout << RESET;
 				if (categoryChoice >= 1 && categoryChoice <= 6) {
 					break; // Valid category, exit the loop
 				}
@@ -387,6 +361,9 @@ public:
 			cout << "Choose your " << count << " food:" << endl;
 			cout << "\tInput food index: "; cin >> foodIndex;
 			cout << "\tInput food quantity: "; cin >> quantity;
+			if ((selectedRestaurant->getItems()).at(foodIndex)->needsPreference()) {
+				(selectedRestaurant->getItems()).at(foodIndex)->choosePreference();
+			}
 			newOrder->addFoodItems((selectedRestaurant->getItems()).at(foodIndex), quantity);
 			cout << "\tContinue ordering?(Y/N): "; cin >> judge;
 			count++;
@@ -435,23 +412,26 @@ public:
 		// Assign the randomly selected rider to the delivery
 		delivery.assignRider(selectedRider);
 
+		cout << endl;
 		DetermineDeliveryOption(delivery, newOrder);
 
 		newOrder->orderSummary();
 
+		cout << endl;
 		DeterminePaymentMethod(newOrder);
 
 		confirmation(newOrder);
 	}
 
 	void viewOrderHistory() {
-		cout << "Order History" << endl;
+		cout << "************ >Order History< ***********" << endl;
 		int index = 1;
 		for (auto& order : orders) {
-			cout << "=====>Order " << index++ << endl;
-			cout << "============================================\n";
+			cout << GREEN << "======= > Order " << index++ << RESET << endl;
+			cout << "****************************************\n";
 			order->orderSummary();
-			cout << "============================================\n";
+			cout << "****************************************\n";
+			cout << endl << endl;
 		}
 	}
 
@@ -478,3 +458,49 @@ public:
 void printMenu();
 
 #endif //SYSTEM_H
+
+
+//class System
+//{
+//private:
+//    vector<User*> users;
+//    vector<Order*> orders;
+//
+//    void saveOrderToFile(Order* order);
+//    void loadOrdersFromFile();
+//public:
+//    void addUsers(User* user) {
+//        users.push_back(user);
+//    }
+//
+//    User* getDefaultUser() {
+//        return users[0];
+//    }
+//
+//    vector<Order*> getOrders() {
+//        return orders;
+//    }
+//
+//    void login();
+//    void clearScreen();
+//    void DetermineDeliveryOption(Delivery& delivery, Order* newOrder);
+//    void DeterminePaymentMethod(Order* newOrder);
+//    void confirmation(Order* newOrder);
+//    void newOrder(vector<Restaurant*>& rest);
+//    void viewOrderHistory();
+//    void reorder();
+//
+//    // Destructor to clean up dynamically allocated memory
+//    ~System() {
+//        for (auto user : users) {
+//            delete user;
+//        }
+//        for (auto order : orders) {
+//            delete order;
+//        }
+//    }
+//};
+//
+//void printMenu();
+//
+//#endif //SYSTEM_H
