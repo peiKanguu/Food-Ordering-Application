@@ -1,5 +1,6 @@
 #ifndef RESTAURANT_H
 #define RESTAURANT_H
+
 #include "Food.h"
 #include "Colors.h"
 #include <iomanip>
@@ -7,20 +8,41 @@
 
 using namespace std;
 
-// Base Restaurant class
 class Restaurant {
 protected:
     string name;
     int distance;
     vector<Food*> items;
+
 public:
     Restaurant(string name, int distance) : name(name), distance(distance) {}
-    virtual string getName() = 0;
-    virtual int getDistance() = 0;
-    virtual string getCategory() = 0;
-    virtual void addFood(Food* food) = 0;
-    virtual vector<Food*> getItems() = 0;
-    virtual void displayMenu() = 0;
+
+    virtual string getName() const {
+        return name;
+    }
+
+    virtual int getDistance() const {
+        return distance;
+    }
+
+    virtual string getCategory() const = 0;
+
+    virtual void addFood(Food* food) {
+        items.push_back(food);
+    }
+
+    virtual vector<Food*> getItems() const {
+        return items;
+    }
+
+    virtual void displayMenu() const {
+        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
+        for (size_t i = 0; i < items.size(); ++i) {
+            cout << MAGENTA << "* " << RESET << i << " : ";
+            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
+        }
+        cout << endl;
+    }
 };
 
 // Specific restaurant classes inheriting from Restaurant
@@ -28,33 +50,8 @@ class WesternRestaurant : public Restaurant {
 public:
     WesternRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Western";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
@@ -62,33 +59,8 @@ class ArabicRestaurant : public Restaurant {
 public:
     ArabicRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Arabic";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
@@ -96,33 +68,8 @@ class ChineseRestaurant : public Restaurant {
 public:
     ChineseRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Chinese";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
@@ -130,33 +77,8 @@ class JapaneseRestaurant : public Restaurant {
 public:
     JapaneseRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Japanese";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
@@ -164,33 +86,8 @@ class KoreanRestaurant : public Restaurant {
 public:
     KoreanRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Korean";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
@@ -198,34 +95,10 @@ class ThaiRestaurant : public Restaurant {
 public:
     ThaiRestaurant(string name, int distance) : Restaurant(name, distance) {}
 
-    string getName() override {
-        return name;
-    }
-
-    int getDistance() override {
-        return distance;
-    }
-
-    string getCategory() override {
+    string getCategory() const override {
         return "Thai";
-    }
-
-    void addFood(Food* food) override {
-        items.push_back(food);
-    }
-
-    vector<Food*> getItems() override {
-        return items;
-    }
-
-    void displayMenu() override {
-        cout << "\nMenu for restaurant: [ " << name << " ]" << endl;
-        for (size_t i = 0; i < items.size(); ++i) {
-            cout << MAGENTA << "* " << RESET << i << " : ";
-            cout << setw(26) << left << items[i]->getName() << "$" << setw(7) << right << fixed << setprecision(2) << items[i]->getPrice() << endl;
-        }
-        cout << endl;
     }
 };
 
 #endif // RESTAURANT_H
+

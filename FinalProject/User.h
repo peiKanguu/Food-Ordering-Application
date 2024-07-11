@@ -1,4 +1,3 @@
-#pragma once
 #ifndef USER_H
 #define USER_H
 
@@ -20,14 +19,5 @@ public:
 
 	string getID() { return id; }
 	string getPassWord() { return passWord; }
-
-	void displayAccount() {
-		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-		cout << "~~~~~~~        ID: " << id << endl;
-		cout << "~~~~~~~  Password: " << passWord << endl;
-		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-		cout << endl;
-	}
 };
-
 #endif // USER_H

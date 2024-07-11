@@ -80,5 +80,6 @@ public:
         return deliveryFee;
     }
 };
+
 #endif // DELIVERY_H
 

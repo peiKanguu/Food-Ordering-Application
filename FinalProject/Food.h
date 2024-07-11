@@ -157,6 +157,21 @@ public:
     }
 };
 
+// 创建一个无需选择偏好的基类模板
+template <typename BaseFood>
+class NoPreferenceFood : public BaseFood {
+public:
+    NoPreferenceFood(const std::string& name, double price) : BaseFood(name, price) {}
+
+    bool needsPreference() const override {
+        return false;
+    }
+
+    void choosePreference() override {
+        this->preference = "NULL";
+    }
+};
+
 // Specific food classes inheriting from their respective cuisine classes
 // 烤鸡翅 - 3种酱料选择
 class RoastChickenWing : public WesternFood {
@@ -188,31 +203,15 @@ public:
 };
 
 // 番茄面包 - 无需选择
-class TomatoBread : public WesternFood {
+class TomatoBread : public NoPreferenceFood<WesternFood> {
 public:
-	TomatoBread() : WesternFood("Tomato Bread", 20.00) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	TomatoBread() : NoPreferenceFood<WesternFood>("Tomato Bread", 20.00) {}
 };
 
-// 香煎鹅肝面包 - 无需选择
-class PanFriedFoieGras : public WesternFood {
+// 香煎鹅肝 - 无需选择
+class PanFriedFoieGras : public NoPreferenceFood<WesternFood> {
 public:
-	PanFriedFoieGras() : WesternFood("Pan-Fried Foie Gras", 48.00) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+	PanFriedFoieGras() : NoPreferenceFood<WesternFood>("Pan-Fried Foie Gras", 25.69) {}
 };
 
 // 法式薯条 - 2种份量选择
@@ -280,18 +279,9 @@ public:
 };
 
 // 巧克力薄脆饼干 - 无需选择
-class ChocolateThinCrisp : public WesternFood {
+class ChocolateThinCrisp : public NoPreferenceFood<WesternFood> {
 public:
-	ChocolateThinCrisp() : WesternFood("Chocolate Thin Crisp", 26.00) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
-
+    ChocolateThinCrisp() : NoPreferenceFood<WesternFood>("Chocolate Thin Crisp", 26.00) {}
 };
 
 // 烤肋眼牛排 - 4种熟度选择
@@ -324,87 +314,39 @@ public:
 };
 
 // 凯撒沙拉 - 无需选择
-class CaesarSalad : public WesternFood {
+class CaesarSalad : public NoPreferenceFood<WesternFood> {
 public:
-    CaesarSalad() : WesternFood("Caesar Salad", 10.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    CaesarSalad() : NoPreferenceFood<WesternFood>("Caesar Salad", 10.99) {}
 };
 
 // 碳烤三文鱼 - 无需选择
-class SpaghettiCarbonara : public WesternFood {
+class SpaghettiCarbonara : public NoPreferenceFood<WesternFood> {
 public:
-    SpaghettiCarbonara() : WesternFood("Spaghetti Carbonara", 15.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    SpaghettiCarbonara() : NoPreferenceFood<WesternFood>("Spaghetti Carbonara", 15.99) {}
 };
 
 // 新英格兰蛤蜊浓汤 - 无需选择
-class NewEnglandClamChowder : public WesternFood {
+class NewEnglandClamChowder : public NoPreferenceFood<WesternFood> {
 public:
-    NewEnglandClamChowder() : WesternFood("New England Clam Chowder", 8.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    NewEnglandClamChowder() : NoPreferenceFood<WesternFood>("New England Clam Chowder", 8.99) {}
 };
 
 // 苹果派 - 无需选择
-class ApplePie : public WesternFood {
+class ApplePie : public NoPreferenceFood<WesternFood> {
 public:
-    ApplePie() : WesternFood("Apple Pie", 6.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-		preference = "NULL";
-    }
+    ApplePie() : NoPreferenceFood<WesternFood>("Apple Pie", 6.99) {}
 };
 
 // 鹰嘴豆泥 - 无需选择
-class Hummus : public ArabicFood {
+class Hummus : public NoPreferenceFood<ArabicFood> {
 public:
-	Hummus() : ArabicFood("Hummus", 6.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    Hummus() : NoPreferenceFood<ArabicFood>("Hummus", 6.99) {}
 };
 
 // 羊肉沙威玛 - 无需选择
-class LambShawarma : public ArabicFood {
+class LambShawarma : public NoPreferenceFood<ArabicFood> {
 public:
-    LambShawarma() : ArabicFood("Lamb Shawarma", 15.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    LambShawarma() : NoPreferenceFood<ArabicFood>("Lamb Shawarma", 15.99) {}
 };
 
 // 烤肉串 - 3种食材选择
@@ -466,45 +408,21 @@ public:
 };
 
 // 沙拉三明治拼盘 - 无需选择
-class FalafelPlate : public ArabicFood {
+class FalafelPlate : public NoPreferenceFood<ArabicFood> {
 public:
-    FalafelPlate() : ArabicFood("Falafel Plate", 9.99) {}
-
-    bool needsPreference() const override {
-		return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    FalafelPlate() : NoPreferenceFood<ArabicFood>("Falafel Plate", 9.99) {}
 };
 
 // 鸡肉卡布萨 - 无需选择
-class ChickenKabsa : public ArabicFood {
+class ChickenKabsa : public NoPreferenceFood<ArabicFood> {
 public:
-    ChickenKabsa() : ArabicFood("Chicken Kabsa", 13.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    ChickenKabsa() : NoPreferenceFood<ArabicFood>("Chicken Kabsa", 13.99) {}
 };
 
 // 法图沙拉 - 无需选择
-class FattoushSalad : public ArabicFood {
+class FattoushSalad : public NoPreferenceFood<ArabicFood> {
 public:
-    FattoushSalad() : ArabicFood("Fattoush Salad", 7.99) {}
-
-    bool needsPreference() const override {
-		return false;
-    }
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    FattoushSalad() : NoPreferenceFood<ArabicFood>("Fattoush Salad", 7.99) {}
 };
 
 // 肉丸汤 - 2种份量选择
@@ -595,159 +513,63 @@ public:
 };
 
 // 宫保鸡丁 - 无需选择
-class KungPaoChicken : public ChineseFood {
+class KungPaoChicken : public NoPreferenceFood<ChineseFood> {
 public:
-    KungPaoChicken() : ChineseFood("Kung Pao Chicken", 12.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    KungPaoChicken() : NoPreferenceFood<ChineseFood>("Kung Pao Chicken", 12.99) {}
 };
 
 // 辣子鸡 - 无需选择
-class ChongqingChicken : public ChineseFood {
+class ChongqingChicken : public NoPreferenceFood<ChineseFood> {
 public:
-	ChongqingChicken() : ChineseFood("Chongqing Chicken", 13.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	ChongqingChicken() : NoPreferenceFood<ChineseFood>("Chongqing Chicken", 13.99) {}
 };
 
 // 回锅肉 - 无需选择
-class TwiceCookedPork : public ChineseFood {
+class TwiceCookedPork : public NoPreferenceFood<ChineseFood> {
 public:
-	TwiceCookedPork() : ChineseFood("Twice Cooked Pork", 14.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	TwiceCookedPork() : NoPreferenceFood<ChineseFood>("Twice Cooked Pork", 14.99) {}
 };
 
 // 酸梅汤 - 无需选择
-class SourPlumDrink : public ChineseFood {
+class SourPlumDrink : public NoPreferenceFood<ChineseFood> {
 public:
-	SourPlumDrink() : ChineseFood("Sour Plum Drink", 3.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	SourPlumDrink() : NoPreferenceFood<ChineseFood>("Sour Plum Drink", 3.99) {}
 };
 
 // 锅包肉 - 无需选择
-class SweetAndSourPork : public ChineseFood {
+class SweetAndSourPork : public NoPreferenceFood<ChineseFood> {
 public:
-	SweetAndSourPork() : ChineseFood("Sweet and Sour Pork", 13.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	SweetAndSourPork() : NoPreferenceFood<ChineseFood>("Sweet and Sour Pork", 13.99) {}
 };
 
 // 九转大肠 - 无需选择
-class NineFoldIntestine : public ChineseFood {
+class NineFoldIntestine : public NoPreferenceFood<ChineseFood> {
 public:
-	NineFoldIntestine() : ChineseFood("Nine Fold Intestine", 15.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
-
+	NineFoldIntestine() : NoPreferenceFood<ChineseFood>("Nine Fold Intestine", 15.99) {}
 };
 
 // 小鸡炖蘑菇 - 无需选择
-class ChickenMushroomSoup : public ChineseFood {
+class ChickenMushroomSoup : public NoPreferenceFood<ChineseFood> {
 public:
-	ChickenMushroomSoup() : ChineseFood("Chicken Mushroom Soup", 9.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+	ChickenMushroomSoup() : NoPreferenceFood<ChineseFood>("Chicken Mushroom Soup", 9.99) {}
 };
 
 // 猪肉炖粉条 - 无需选择
-class PorkStewWithRiceNoodles : public ChineseFood {
+class PorkStewWithRiceNoodles : public NoPreferenceFood<ChineseFood> {
 public:
-	PorkStewWithRiceNoodles() : ChineseFood("Pork Stew Rice Noodles", 11.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
-
+	PorkStewWithRiceNoodles() : NoPreferenceFood<ChineseFood>("Pork Stew Rice Noodles", 11.99) {}
 };
 
 // 人参鸡 - 无需选择
-class GinsengChickenSoup : public ChineseFood {
+class GinsengChickenSoup : public NoPreferenceFood<ChineseFood> {
 public:
-	GinsengChickenSoup() : ChineseFood("Ginseng Chicken Soup", 12.99) {}
-
-	bool needsPreference() const override {
-		return false;
-	}
-
-	void choosePreference() override {
-		preference = "NULL";
-	}
+    GinsengChickenSoup() : NoPreferenceFood<ChineseFood>("Ginseng Chicken Soup", 12.99) {}
 };
 
 // 北京烤鸭 - 无需选择
-class PekingDuck : public ChineseFood {
+class PekingDuck : public NoPreferenceFood<ChineseFood> {
 public:
-    PekingDuck() : ChineseFood("Peking Duck", 24.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
-};
-
-// 炸酱面 - 无需选择
-class Zhajiangmian : public ChineseFood {
-public:
-    Zhajiangmian() : ChineseFood("Zhajiangmian", 9.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    PekingDuck() : NoPreferenceFood<ChineseFood>("Peking Duck", 24.99) {}
 };
 
 // 涮羊肉 - 选择羊肉种类
@@ -779,32 +601,22 @@ public:
     }
 };
 
-// 门丁肉饼 - 无需选择
-class MendingMeatPie : public ChineseFood {
+// 炸酱面 - 无需选择
+class Zhajiangmian : public NoPreferenceFood<ChineseFood> {
 public:
-    MendingMeatPie() : ChineseFood("Mending Meat Pie", 8.99) {}
+    Zhajiangmian() : NoPreferenceFood<ChineseFood>("Zhajiangmian", 9.99) {}
+};
 
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+// 门丁肉饼 - 无需选择
+class MendingMeatPie : public NoPreferenceFood<ChineseFood> {
+public:
+    MendingMeatPie() : NoPreferenceFood<ChineseFood>("Mending Meat Pie", 8.99) {}
 };
 
 // 干炸丸子 - 无需选择
-class DeepFriedMeatballs : public ChineseFood {
+class DeepFriedMeatballs : public NoPreferenceFood<ChineseFood> {
 public:
-    DeepFriedMeatballs() : ChineseFood("Deep Fried Meatballs", 10.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    DeepFriedMeatballs() : NoPreferenceFood<ChineseFood>("Deep Fried Meatballs", 10.99) {}
 };
 
 // 烤肉 - 选择烤肉食材
@@ -994,31 +806,15 @@ public:
 };
 
 // 章鱼烧 - 无需选择
-class Takoyaki : public JapaneseFood {
+class Takoyaki : public NoPreferenceFood<JapaneseFood> {
 public:
-    Takoyaki() : JapaneseFood("Takoyaki", 7.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    Takoyaki() : NoPreferenceFood<JapaneseFood>("Takoyaki", 7.99) {}
 };
 
 // 味增汤 - 无需选择
-class MisoSoup : public JapaneseFood {
+class MisoSoup : public NoPreferenceFood<JapaneseFood> {
 public:
-    MisoSoup() : JapaneseFood("Miso Soup", 3.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    MisoSoup() : NoPreferenceFood<JapaneseFood>("Miso Soup", 3.99) {}
 };
 
 // 石锅拌饭 - 选择配料
@@ -1057,17 +853,9 @@ public:
 };
 
 // 辣炒年糕 - 无需选择
-class Tteokbokki : public KoreanFood {
+class Tteokbokki : public NoPreferenceFood<KoreanFood> {
 public:
-    Tteokbokki() : KoreanFood("Tteokbokki", 7.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    Tteokbokki() : NoPreferenceFood<KoreanFood>("Tteokbokki", 7.99) {}
 };
 
 // 烤牛肉 - 选择酱料
@@ -1104,17 +892,9 @@ public:
 };
 
 // 泡菜 - 无需选择
-class Kimchi : public KoreanFood {
+class Kimchi : public NoPreferenceFood<KoreanFood> {
 public:
-    Kimchi() : KoreanFood("Kimchi", 5.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    Kimchi() : NoPreferenceFood<KoreanFood>("Kimchi", 5.99) {}
 };
 
 // 部队锅 - 选择额外配料
@@ -1188,31 +968,15 @@ public:
 };
 
 // 泰式冬阴功汤 - 无需选择
-class TomYumGoong : public ThaiFood {
+class TomYumGoong : public NoPreferenceFood<ThaiFood> {
 public:
-    TomYumGoong() : ThaiFood("Tom Yum Goong", 13.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    TomYumGoong() : NoPreferenceFood<ThaiFood>("Tom Yum Goong", 13.99) {}
 };
 
 // 绿咖喱鸡 - 无需选择
-class GreenCurry : public ThaiFood {
+class GreenCurry : public NoPreferenceFood<ThaiFood> {
 public:
-    GreenCurry() : ThaiFood("Green Curry", 14.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    GreenCurry() : NoPreferenceFood<ThaiFood>("Green Curry", 14.99) {}
 };
 
 // 泰式炒饭 - 选择肉类
@@ -1251,45 +1015,21 @@ public:
 };
 
 // 泰式红咖喱 - 无需选择
-class RedCurry : public ThaiFood {
+class RedCurry : public NoPreferenceFood<ThaiFood> {
 public:
-    RedCurry() : ThaiFood("Red Curry", 14.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    RedCurry() : NoPreferenceFood<ThaiFood>("Red Curry", 14.99) {}
 };
 
 // 泰式罗勒炒鸡 - 无需选择
-class BasilChicken : public ThaiFood {
+class BasilChicken : public NoPreferenceFood<ThaiFood> {
 public:
-    BasilChicken() : ThaiFood("Basil Chicken", 12.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    BasilChicken() : NoPreferenceFood<ThaiFood>("Basil Chicken", 12.99) {}
 };
 
 // 泰式青木瓜沙拉 - 无需选择
-class PapayaSalad : public ThaiFood {
+class PapayaSalad : public NoPreferenceFood<ThaiFood> {
 public:
-    PapayaSalad() : ThaiFood("Papaya Salad", 9.99) {}
-
-    bool needsPreference() const override {
-        return false;
-    }
-
-    void choosePreference() override {
-        preference = "NULL";
-    }
+    PapayaSalad() : NoPreferenceFood<ThaiFood>("Papaya Salad", 9.99) {}
 };
 
 // 泰式甜点 - 选择口味
@@ -1326,5 +1066,4 @@ public:
             price = 6.99;
     }
 };
-
 #endif // FOOD_H
