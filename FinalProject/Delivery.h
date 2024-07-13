@@ -22,15 +22,15 @@ private:
         // Determine base time based on delivery option
         if (deliveryOption == "Direct") {
             deliveryTime = 30;
-            baseFee = 10.0;
+            baseFee = 5.0;
         }
         else if (deliveryOption == "Standard") {
             deliveryTime = 45;
-            baseFee = 5.0;
+            baseFee = 3.0;
         }
         else if (deliveryOption == "Saver") {
             deliveryTime = 60;
-            baseFee = 2.5;
+            baseFee = 1.5;
         }
         else {
             throw invalid_argument("Invalid delivery option");
@@ -54,6 +54,10 @@ private:
 public:
     Delivery(int distance)
         : distance(distance), deliveryTime(0), deliveryFee(0.0), rider(nullptr) {}
+
+	int getDistance() const {
+		return distance;
+	}
 
     void setDeliveryOption(const string& option) {
         deliveryOption = option;

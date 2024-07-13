@@ -24,7 +24,6 @@ struct FoodPtrEqual {
     }
 };
 
-
 class Order {
 private:
 	string newOrderID;
@@ -99,5 +98,3 @@ public:
 };
 
 #endif // ORDER_H
-
-
