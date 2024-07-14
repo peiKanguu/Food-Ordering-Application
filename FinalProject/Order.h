@@ -37,6 +37,10 @@ public:
     Order(string ID, string Name, Delivery delivery, string paymentMethod = "") :
         newOrderID(ID), restaurantName(Name), delivery(delivery), paymentMethod(paymentMethod), totalPrice_food(0) {}
 
+    void setOrderID(string orderID) {
+		newOrderID = orderID;
+    }
+
 	string getOrderID() {
 		return newOrderID;
 	}
@@ -53,15 +57,11 @@ public:
 		return food_and_quantity;
 	}
 
-    double getTotalPrice_food() {
-        return totalPrice_food;
-    }
-
     void setDelivery(Delivery delivery) {
 		this->delivery = delivery;
     }
 
-    Delivery getDelivery() {
+    Delivery& getDelivery() {
 		return delivery;
     }
 
@@ -75,14 +75,6 @@ public:
 
     void setSpecialInstructions(string instructions) {
 		specialInstructions = instructions;
-    }
-
-	string getSpecialInstructions() {
-		return specialInstructions;
-	}
-
-    void setTotalPrice_food(double total_price) {
-		totalPrice_food = total_price;
     }
 
     void orderSummary() {
@@ -106,6 +98,37 @@ public:
         cout << "\n----------------------------------------\n";
         cout << "Special Instructions:\n" << specialInstructions << endl;
         cout << "\n----------------------------------------\n";
+    }
+
+    void saveToOrderHistory() const {
+        ofstream outFile("orderHistory.txt", ios::app);
+        if (!outFile.is_open()) {
+            cerr << "Error opening file: orderHistory.txt" << endl;
+            return;
+        }
+
+        // Write the order header line
+        outFile << newOrderID << ","
+            << restaurantName << ","
+            << delivery.getDistance() << ","
+			<< delivery.getDeliveryOption() << ","
+            << paymentMethod << ","
+            << specialInstructions << endl;
+
+        // Write each food item in the order
+        for (const auto& pair : food_and_quantity) {
+            Food* food = pair.first;
+            int quantity = pair.second;
+            outFile << food->getName() << ","
+                << quantity << ","
+                << (food->needsPreference() ? food->getPreference() : "N/A") << ","
+                << food->getPrice() << endl;
+        }
+
+        // Add a blank line to separate orders
+        outFile << endl;
+
+        outFile.close();
     }
 };
 

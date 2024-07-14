@@ -30,6 +30,10 @@ public:
 
     virtual bool needsPreference() const = 0;
     virtual void choosePreference() = 0;
+
+	void setPreference(const string& pref) {
+		preference = pref;
+	}
 };
 
 // Specific food classes inheriting from Food

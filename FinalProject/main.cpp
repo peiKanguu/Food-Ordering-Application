@@ -7,13 +7,13 @@ int main() {
 	vector<Restaurant*> restaurants;
 
 	// Load users' information from file
-	system.loadUsers("UsersInformation.csv");
+	system.loadUsers("UsersInformation.txt");
 
 	// Load food items' information from file
 	system.loadFoodItems("FoodInformation.txt", foodMap);
 
 	// Load restaurant information from file
-	system.loadRestaurants("RestaurantInformation.csv", foodMap, restaurants);
+	system.loadRestaurants("RestaurantInformation.txt", foodMap, restaurants);
 
 	// Display a default user for teacher to test
 	cout << GREEN << "Welcome to the Food Delivery System!"  << endl;
@@ -25,7 +25,7 @@ int main() {
 	cout << RESET << endl;
 
 	// Login
-	//system.login();
+	system.login();
 	system.clearScreen();
 
     int choice;
@@ -51,8 +51,8 @@ int main() {
         }
         case 2: {
             system.clearScreen();
-            system.loadOrderHistory("OrderHistory.csv");
-            if (system.getOrderHistory().empty()) {
+            system.loadOrderHistory("OrderHistory.txt", foodMap);
+            if (system.getHistoryOrder().empty()) {
                 cout << RED << "No previous orders found." << RESET << endl;
                 break;
             }

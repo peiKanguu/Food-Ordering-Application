@@ -4,9 +4,10 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
-#include <fstream>   // For file operations
+#include <fstream>  
 #include <sstream>
 #include <limits>
+#include <chrono>
 #include <map>
 #include "User.h"
 #include "Restaurant.h"
@@ -15,6 +16,7 @@
 #include "Rider.h"
 #include "Colors.h"
 
+// Custom exception class for login-related errors
 class LoginException : public exception {
 public:
 	explicit LoginException(const string& message) : msg_(message) {}
@@ -25,7 +27,6 @@ private:
 	string msg_;
 };
 
-
 class System
 {
 private:
@@ -35,13 +36,36 @@ private:
 	vector<Rider> riders;
 public:
 
-	vector<Order*> getOrderHistory() {
+	vector<Order*> getHistoryOrder() {
 		return orderHistory;
+	}
+
+	// generate a random order ID
+	string generateOrderID() {
+		// Seed the random number generator with current time including milliseconds
+		srand(static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count()));
+
+		// Create a new orderID
+		return "ORD" + to_string(rand() % 10000000 + 10000000);
+	}
+
+	// Get a random rider
+	Rider* getRider() {
+		// Seed the random number generator with current time including milliseconds
+		srand(static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count()));
+
+		// Randomly select a rider
+		int randomIndex = rand() % riders.size();
+		return &riders[randomIndex];
 	}
 
 	// Load users' information from file
 	void loadUsers(const string& filename) {
 		ifstream inFile(filename);
+		if (!inFile.is_open()) {
+			cerr << "Error opening file: " << filename << endl;
+			return;
+		}
 		string line;
 		getline(inFile, line); // Skip header line
 
@@ -62,6 +86,10 @@ public:
 	// Load food items' information from file
 	void loadFoodItems(const string& filename, map<string, Food*>& foodMap) {
 		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error opening file: " << filename << endl;
+			return;
+		}
 		string line;
 		getline(file, line); // Skip header line
 
@@ -72,7 +100,7 @@ public:
 			getline(ss, priceStr, ',');
 			getline(ss, preference, ',');
 
-			double price = stod(priceStr);
+ 			double price = stod(priceStr);
 			Food* food;
 			if (preference == "NULL") {
 				food = new NoPreferenceFood(name, price, preference);
@@ -87,17 +115,36 @@ public:
 	// Load restaurants' information from file
 	void loadRestaurants(const string& filename, const map<string, Food*>& foodMap, vector<Restaurant*>& restaurants) {
 		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error opening file: " << filename << endl;
+			return;
+		}
 		string line;
 		getline(file, line); // Skip header line
 
 		while (getline(file, line)) {
+			if (line.empty()) break; // Stop if the line is empty
+
 			stringstream ss(line);
 			string name, distanceStr, category, foodItem;
 			getline(ss, name, ',');
 			getline(ss, distanceStr, ',');
 			getline(ss, category, ',');
 
-			int distance = stod(distanceStr);
+			// Convert distance to integer
+			int distance=0;
+			try {
+				distance = stoi(distanceStr);
+			}
+			catch (const invalid_argument&) {
+				cerr << "Invalid distance: " << distanceStr << " for restaurant: " << name << endl;
+				continue;
+			}
+			catch (const out_of_range&) {
+				cerr << "Distance out of range: " << distanceStr << " for restaurant: " << name << endl;
+				continue;
+			}
+
 			Restaurant* restaurant;
 			if (category == "Chinese") {
 				restaurant = new ChineseRestaurant(name, distance);
@@ -135,6 +182,10 @@ public:
 	// Load restaurants' information from file
 	void loadRiders(const string& filename) {
 		ifstream inFile(filename);
+		if (!inFile.is_open()) {
+			cerr << "Error opening file: " << filename << endl;
+			return;
+		}
 		string line;
 		getline(inFile, line); // Skip header line
 
@@ -150,60 +201,85 @@ public:
 		}
 	}
 
-	void loadOrderHistory(const string& filename) {
+	// Load order history from file
+	void loadOrderHistory(const string& filename, map<string, Food*>& foodMap) {
 		ifstream inFile(filename);
+		if (!inFile.is_open()) {
+			cerr << "Error opening file: orderHistory.txt" << endl;
+			return;
+		}
+
+		// Clear the order history vector
+		orderHistory.clear();
+
 		string line;
-		getline(inFile, line); // Skip header line
-
 		while (getline(inFile, line)) {
-			istringstream iss(line);
-			string orderID, restaurantName, specialInstruction, distanceStr, riderName, riderContact, riderVehicle, paymentMethod, deliveryOption, totalPriceStr, foodItems;
-			getline(iss, orderID, ',');
-			getline(iss, restaurantName, ',');
-			getline(iss, specialInstruction, ',');
-			getline(iss, distanceStr, ',');
-			getline(iss, riderName, ',');
-			getline(iss, riderContact, ',');
-			getline(iss, riderVehicle, ',');
-			getline(iss, paymentMethod, ',');
-			getline(iss, deliveryOption, ',');
-			getline(iss, totalPriceStr, ',');
-			getline(iss, foodItems, ',');
-
-			double distance = stod(distanceStr);
-			double totalPrice = stod(totalPriceStr);
-
-			Delivery delivery(distance);
-			Rider rider(riderName, riderContact, riderVehicle);
-			delivery.assignRider(&rider);
-
-			Order* order = new Order(orderID, restaurantName, delivery, paymentMethod);
-			order->setTotalPrice_food(totalPrice);
-
-			istringstream foodStream(foodItems);
-			string foodItem;
-			while (getline(foodStream, foodItem, ',')) {
-				size_t xPos = foodItem.find(" x ");
-				size_t pricePos = foodItem.find(" ($");
-				size_t prefPos = foodItem.find("),");
-				if (xPos != string::npos && pricePos != string::npos && prefPos != string::npos) {
-					string foodName = foodItem.substr(0, xPos);
-					int quantity = stoi(foodItem.substr(xPos + 3, pricePos - xPos - 3));
-					double price = stod(foodItem.substr(pricePos + 3, foodItem.size() - pricePos - 4));
-					string preference = foodItem.substr(pricePos + foodItem.substr(pricePos).find(",") + 2, prefPos - pricePos - 1);
-					Food* food;
-					if (preference == "NULL") {
-						food = new NoPreferenceFood(foodName, price, "NULL");
-					}
-					else {
-						food = new PreferenceFood(foodName, price, preference);
-					}
-					order->addFoodItems(food, quantity);
-				}
+			if (line.empty()) {
+				continue; // Skip empty lines (used to separate orders)
 			}
 
-			orderHistory.push_back(order);
+			istringstream iss(line);
+			string orderID, restaurantName, distanceStr, deliveryOption, paymentMethod, specialInstructions;
+			int distance;
+
+			// Read the header line
+			getline(iss, orderID, ',');
+			getline(iss, restaurantName, ',');
+			getline(iss, distanceStr, ',');
+			distance= stoi(distanceStr);
+			getline(iss, deliveryOption, ',');
+			getline(iss, paymentMethod, ',');
+			getline(iss, specialInstructions);
+
+			Delivery delivery(distance);
+			delivery.setDeliveryOption(deliveryOption);
+
+			Order* newOrder = new Order(orderID, restaurantName, delivery, paymentMethod);
+			newOrder->setSpecialInstructions(specialInstructions);
+
+			// Read food items
+			while (getline(inFile, line) && !line.empty()) {
+				istringstream foodIss(line);
+				string foodName, quantityStr, preference, priceStr;
+				int quantity;
+				double price;
+
+				getline(foodIss, foodName, ',');
+				getline(foodIss, quantityStr, ',');
+				quantity = stoi(quantityStr);
+				getline(foodIss, preference, ',');
+				getline(foodIss, priceStr);
+				price = stod(priceStr);
+
+				// Create a Food object or look it up from a map if already created
+				Food* foodItem = nullptr;
+				auto it = foodMap.find(foodName);
+				if (it != foodMap.end()) {
+					foodItem = it->second;
+				}
+				else {
+					if(preference == "NULL"){
+						foodItem = new NoPreferenceFood(foodName, price, preference);
+					}
+					else {
+						foodItem = new PreferenceFood(foodName, price, preference);
+					}
+					foodMap[foodName] = foodItem;
+				}
+
+				if (foodItem->needsPreference()) {
+					foodItem->setPreference(preference);
+				}
+
+				newOrder->addFoodItems(foodItem, quantity);
+
+			}
+
+			// Add the order to the history
+			orderHistory.push_back(newOrder);
 		}
+
+		inFile.close();
 	}
 
 	// Login Function
@@ -263,8 +339,8 @@ public:
 					cout << RED << "Incorrect ID, please check its accuracy and try again." << RESET << endl << endl;
 				}
 			}
-			catch (const LoginException& e) {
-				cerr << RED << e.what() << RESET << endl;
+			catch (const LoginException& error) {
+				cerr << RED << error.what() << RESET << endl;
 				cin.clear(); // clear error state
 				cin.ignore(numeric_limits<streamsize>::max(), '\n'); // remove invalid input
 			}
@@ -403,29 +479,10 @@ public:
 			cout << "\nThank you for ordering!" << endl;
 			cout << "-----------------------------------------" << endl;
 			orders.push_back(newOrder);
-
-			ofstream outFile("OrderHistory.csv", ios::app);
-			if (outFile.is_open()) {
-				outFile << newOrder->getOrderID() << "," << newOrder->getRestaurantName() << "," << newOrder->getSpecialInstructions() << ","
-					<< newOrder->getDelivery().getDistance() << ","
-					<< newOrder->getDelivery().getRider()->getName() << "," << newOrder->getDelivery().getRider()->getContact() << "," << newOrder->getDelivery().getRider()->getVehicle() << ","
-					<< newOrder->getPaymentMethod() << "," << newOrder->getDelivery().getDeliveryOption() << ","
-					<< newOrder->getTotalPrice_food() << ",";
-				for (const auto& pair : newOrder->getFoodItemsAndQuantity()) {
-					Food* food = pair.first;
-					int quantity = pair.second;
-					outFile << food->getName() << " x " << quantity << " ($" << fixed << setprecision(2) << food->getPrice() << "),"
-						<< food->getPreference() << ",";
-				}
-				outFile << endl;
-				outFile.close();
-			}
-			else {
-				cout << RED << "Error opening file to save order history." << RESET << endl;
-			}
+			newOrder->saveToOrderHistory();
 		}
 		else {
-			// 如果用户不确认订单，则清除 newOrder 对象
+			// If user don't confirm the order, delete it 
 			delete newOrder;
 			newOrder = nullptr;
 			cout << RED << "Your order has been canceled." << RESET << endl;
@@ -539,11 +596,8 @@ public:
 
 		selectedRestaurant->displayMenu();
 
-		// Seed the random number generator
-		srand(static_cast<unsigned int>(time(0)));
-
 		// Create a new orderID
-		string newOrderID = "ORD" + to_string(rand() % 100000 + 100000);
+		string newOrderID = generateOrderID();
 
 		Delivery delivery(selectedRestaurant->getDistance());
 		Order* newOrder = new Order(newOrderID, selectedRestaurant->getName(), delivery);
@@ -597,45 +651,43 @@ public:
 		}
 		
 		string specialInstructions;
-		char temp;
+		string temp;
 
 		while (true) {
 			try {
 				cout << "\nAny special instructions for the order? (Y/N): ";
-				if (!(cin >> temp)) {
+				cin >> temp;
+
+				if (temp.length() != 1 || (toupper(temp[0]) != 'Y' && toupper(temp[0]) != 'N')) {
 					throw invalid_argument("Invalid input. Please enter 'Y' or 'N'.");
 				}
 
 				// Convert temp to uppercase to handle both 'Y' and 'y' or 'N' and 'n'
-				temp = toupper(temp);
+				char response = toupper(temp[0]);
 
-				if (temp == 'Y') {
+				if (response == 'Y') {
 					cout << "Enter special instructions: ";
 					cin.ignore();
 					getline(cin, specialInstructions);
 					newOrder->setSpecialInstructions(specialInstructions);
 					break;
 				}
-				else if (temp == 'N') {
+				else if (response == 'N') {
 					newOrder->setSpecialInstructions("NULL");
 					break;
 				}
-				else {
-					throw invalid_argument("Invalid input. Please enter 'Y' for yes or 'N' for no.");
-				}
 			}
-			catch (const invalid_argument& e) {
-				cout << RED << e.what() << RESET << endl;
-				cin.clear(); // Clear the error flag on cin
-				cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
+			catch (const invalid_argument& error) {
+				cout << RED << error.what() << RESET << endl;  
+				cin.clear();  // Clear the error flag on cin
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Ignore invalid input
 			}
 		}
 
-		loadRiders("RiderInformation.csv");
+		loadRiders("RiderInformation.txt");
 
 		// Randomly select a rider
-		int randomIndex = rand() % riders.size();
-		Rider* selectedRider = &riders[randomIndex];
+		Rider* selectedRider = getRider();
 
 		// Assign the randomly selected rider to the delivery
 		delivery.assignRider(selectedRider);
@@ -659,9 +711,6 @@ public:
 			cout << "****************************************\n";
 			cout << "Order ID: " << order->getOrderID();
 			order->orderSummary();
-			cout << "\nDelivery option: " << order->getDelivery().getDeliveryOption() << endl;
-			cout << "Payment method: " << order->getPaymentMethod() << endl;
-			order->getDelivery().getRider()->display();
 			cout << "****************************************\n";
 			cout << endl << endl;
 		}
@@ -670,6 +719,9 @@ public:
 	void reorder() {
 		cout << GREEN << "Reorder" << RESET << endl;
 		int index;
+
+		// Create a new orderID
+		string newOrderID = generateOrderID();
 
 		while (true) {
 			try {
@@ -680,17 +732,28 @@ public:
 					throw invalid_argument("Invalid input. Please enter a number.");
 				}
 
-				if (index < 1 || index > orders.size()) {
+				if (index < 1 || index > orderHistory.size()) {
 					throw out_of_range("Invalid order index. Please try again.");
 				}
 
+				// crate a new order object with the same food items but a new orderID
 				Order* reOrder = orderHistory[index - 1];
-				cout << "Reordering the following order:" << endl;
+				reOrder->setOrderID(newOrderID);
 				reOrder->orderSummary();
-				cout << "============================================\n";
+				cout << GREEN;
+				cout << "======================================\n";
 				cout << "Order has been successfully reordered!" << endl;
-				cout << "============================================\n";
-				orders.push_back(reOrder);
+				cout << "======================================\n";
+				cout << RESET << endl;
+				cout << endl;
+				// Determine payment method
+				loadRiders("RiderInformation.txt");
+				Rider* selectedRider = getRider();
+				reOrder->getDelivery().assignRider(selectedRider);
+				cout << endl;
+				// Determine new delivery option
+				DetermineDeliveryOption(reOrder->getDelivery(), reOrder);
+				confirmation(reOrder);
 				break;
 			}
 			catch (const invalid_argument& error) {
