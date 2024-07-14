@@ -49,6 +49,10 @@ public:
 		food_and_quantity[foodItem] = quantities;
 	}
 
+	unordered_map<Food*, int, FoodPtrHash, FoodPtrEqual> getFoodItemsAndQuantity() {
+		return food_and_quantity;
+	}
+
     double getTotalPrice_food() {
         return totalPrice_food;
     }
@@ -71,6 +75,14 @@ public:
 
     void setSpecialInstructions(string instructions) {
 		specialInstructions = instructions;
+    }
+
+	string getSpecialInstructions() {
+		return specialInstructions;
+	}
+
+    void setTotalPrice_food(double total_price) {
+		totalPrice_food = total_price;
     }
 
     void orderSummary() {

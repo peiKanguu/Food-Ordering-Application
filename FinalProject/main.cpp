@@ -51,7 +51,8 @@ int main() {
         }
         case 2: {
             system.clearScreen();
-            if (system.getOrders().empty()) {
+            system.loadOrderHistory("OrderHistory.csv");
+            if (system.getOrderHistory().empty()) {
                 cout << RED << "No previous orders found." << RESET << endl;
                 break;
             }

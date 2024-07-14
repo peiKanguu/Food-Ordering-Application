@@ -31,11 +31,12 @@ class System
 private:
 	vector<User> users;
 	vector<Order*> orders;
+	vector<Order*> orderHistory;
 	vector<Rider> riders;
 public:
 
-	vector<Order*> getOrders() {
-		return orders;
+	vector<Order*> getOrderHistory() {
+		return orderHistory;
 	}
 
 	// Load users' information from file
@@ -149,6 +150,62 @@ public:
 		}
 	}
 
+	void loadOrderHistory(const string& filename) {
+		ifstream inFile(filename);
+		string line;
+		getline(inFile, line); // Skip header line
+
+		while (getline(inFile, line)) {
+			istringstream iss(line);
+			string orderID, restaurantName, specialInstruction, distanceStr, riderName, riderContact, riderVehicle, paymentMethod, deliveryOption, totalPriceStr, foodItems;
+			getline(iss, orderID, ',');
+			getline(iss, restaurantName, ',');
+			getline(iss, specialInstruction, ',');
+			getline(iss, distanceStr, ',');
+			getline(iss, riderName, ',');
+			getline(iss, riderContact, ',');
+			getline(iss, riderVehicle, ',');
+			getline(iss, paymentMethod, ',');
+			getline(iss, deliveryOption, ',');
+			getline(iss, totalPriceStr, ',');
+			getline(iss, foodItems, ',');
+
+			double distance = stod(distanceStr);
+			double totalPrice = stod(totalPriceStr);
+
+			Delivery delivery(distance);
+			Rider rider(riderName, riderContact, riderVehicle);
+			delivery.assignRider(&rider);
+
+			Order* order = new Order(orderID, restaurantName, delivery, paymentMethod);
+			order->setTotalPrice_food(totalPrice);
+
+			istringstream foodStream(foodItems);
+			string foodItem;
+			while (getline(foodStream, foodItem, ',')) {
+				size_t xPos = foodItem.find(" x ");
+				size_t pricePos = foodItem.find(" ($");
+				size_t prefPos = foodItem.find("),");
+				if (xPos != string::npos && pricePos != string::npos && prefPos != string::npos) {
+					string foodName = foodItem.substr(0, xPos);
+					int quantity = stoi(foodItem.substr(xPos + 3, pricePos - xPos - 3));
+					double price = stod(foodItem.substr(pricePos + 3, foodItem.size() - pricePos - 4));
+					string preference = foodItem.substr(pricePos + foodItem.substr(pricePos).find(",") + 2, prefPos - pricePos - 1);
+					Food* food;
+					if (preference == "NULL") {
+						food = new NoPreferenceFood(foodName, price, "NULL");
+					}
+					else {
+						food = new PreferenceFood(foodName, price, preference);
+					}
+					order->addFoodItems(food, quantity);
+				}
+			}
+
+			orderHistory.push_back(order);
+		}
+	}
+
 	// Login Function
 	void login() {
 		string ID, Password;
@@ -224,7 +281,6 @@ public:
 		cerr << "Unsupported platform for clearScreen()" << std::endl;
 #endif
 	}
-
 
 	void DetermineDeliveryOption(Delivery& delivery, Order* newOrder) {
 		int deliveryOption;
@@ -348,17 +404,28 @@ public:
 			cout << "-----------------------------------------" << endl;
 			orders.push_back(newOrder);
 
-			// Write the order to a file
 			ofstream outFile("OrderHistory.csv", ios::app);
-			//
-			outFile << newOrder->getOrderID() << "," << newOrder->getRestaurantName() << "," << newOrder->getDelivery().getDistance() << "," 
-				<< newOrder->getDelivery().getRider()->getName() << "," << newOrder->getDelivery().getRider()->getContact() << "," 
-				<< newOrder->getDelivery().getRider()->getVehicle() << "," << newOrder->getPaymentMethod() << "," 
-				<< newOrder->getTotalPrice_food() << "," << newOrder->getDelivery().getDeliveryOption() << endl;
-			outFile.close();
+			if (outFile.is_open()) {
+				outFile << newOrder->getOrderID() << "," << newOrder->getRestaurantName() << "," << newOrder->getSpecialInstructions() << ","
+					<< newOrder->getDelivery().getDistance() << ","
+					<< newOrder->getDelivery().getRider()->getName() << "," << newOrder->getDelivery().getRider()->getContact() << "," << newOrder->getDelivery().getRider()->getVehicle() << ","
+					<< newOrder->getPaymentMethod() << "," << newOrder->getDelivery().getDeliveryOption() << ","
+					<< newOrder->getTotalPrice_food() << ",";
+				for (const auto& pair : newOrder->getFoodItemsAndQuantity()) {
+					Food* food = pair.first;
+					int quantity = pair.second;
+					outFile << food->getName() << " x " << quantity << " ($" << fixed << setprecision(2) << food->getPrice() << "),"
+						<< food->getPreference() << ",";
+				}
+				outFile << endl;
+				outFile.close();
+			}
+			else {
+				cout << RED << "Error opening file to save order history." << RESET << endl;
+			}
 		}
 		else {
-			// Clear the newOrder object if the user does not confirm the order
+			// 如果用户不确认订单，则清除 newOrder 对象
 			delete newOrder;
 			newOrder = nullptr;
 			cout << RED << "Your order has been canceled." << RESET << endl;
@@ -587,31 +654,52 @@ public:
 	void viewOrderHistory() {
 		cout << "************ >Order History< ***********" << endl;
 		int index = 1;
-		for (auto& order : orders) {
+		for (auto& order : orderHistory) {
 			cout << GREEN << "======= > Order " << index++ << RESET << endl;
 			cout << "****************************************\n";
+			cout << "Order ID: " << order->getOrderID();
 			order->orderSummary();
+			cout << "\nDelivery option: " << order->getDelivery().getDeliveryOption() << endl;
+			cout << "Payment method: " << order->getPaymentMethod() << endl;
+			order->getDelivery().getRider()->display();
 			cout << "****************************************\n";
 			cout << endl << endl;
 		}
 	}
 
 	void reorder() {
-		cout << GREEN <<  "Reorder" << RESET << endl;
-		cout << "Enter the order index you want to reorder: ";
+		cout << GREEN << "Reorder" << RESET << endl;
 		int index;
-		cin >> index;
-		if (index < 1 || index > orders.size()) {
-			cout << RED << "Invalid order index. Please try again." << RESET << endl;
-			return;
+
+		while (true) {
+			try {
+				cout << "Enter the order index you want to reorder: ";
+				if (!(cin >> index)) {
+					cin.clear(); // Clear the error flag on cin
+					cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
+					throw invalid_argument("Invalid input. Please enter a number.");
+				}
+
+				if (index < 1 || index > orders.size()) {
+					throw out_of_range("Invalid order index. Please try again.");
+				}
+
+				Order* reOrder = orderHistory[index - 1];
+				cout << "Reordering the following order:" << endl;
+				reOrder->orderSummary();
+				cout << "============================================\n";
+				cout << "Order has been successfully reordered!" << endl;
+				cout << "============================================\n";
+				orders.push_back(reOrder);
+				break;
+			}
+			catch (const invalid_argument& error) {
+				cout << RED << error.what() << RESET << endl;
+			}
+			catch (const out_of_range& error) {
+				cout << RED << error.what() << RESET << endl;
+			}
 		}
-		Order* reOrder = orders[index - 1];
-		cout << "Reordering the following order:" << endl;
-		reOrder->orderSummary();
-		cout << "============================================\n";
-		cout << "Order has been successfully reordered!" << endl;
-		cout << "============================================\n";
-		orders.push_back(reOrder);
 	}
 };
 
